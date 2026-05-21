@@ -2,6 +2,7 @@ services:
   - type: web
     name: growstro-backend
     runtime: docker
+    plan: free
     dockerContext: backend
     dockerfilePath: Dockerfile
     envVars:
