@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import RootPathResolver from './RootPathResolver';
+import { isCentralDomain } from '../utils/domain';
 
 // Layout Frames
 import AuthLayout from '../layouts/AuthLayout';
@@ -44,8 +45,8 @@ const getTenantSlug = () => {
     return parts[2];
   }
   const { hostname } = window.location;
-  const hostParts = hostname.split('.');
-  if (hostParts.length > 1 && hostParts[0] !== 'www' && hostParts[0] !== 'localhost') {
+  if (!isCentralDomain(hostname)) {
+    const hostParts = hostname.split('.');
     return hostParts[0];
   }
   return localStorage.getItem('tenant_slug');

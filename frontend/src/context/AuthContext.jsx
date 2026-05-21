@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { isCentralDomain } from '../utils/domain';
 
 const AuthContext = createContext(null);
 
@@ -21,8 +22,8 @@ export const AuthProvider = ({ children }) => {
 
     // 2. Subdomain-based: e.g. sajilo.localhost
     const { hostname } = window.location;
-    const hostParts = hostname.split('.');
-    if (hostParts.length > 1 && hostParts[0] !== 'www' && hostParts[0] !== 'localhost') {
+    if (!isCentralDomain(hostname)) {
+      const hostParts = hostname.split('.');
       return hostParts[0];
     }
     

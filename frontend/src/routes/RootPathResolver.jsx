@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import Landing from '../pages/Landing';
+import { isCentralDomain } from '../utils/domain';
 
 export default function RootPathResolver() {
   const token = localStorage.getItem('auth_token');
@@ -17,10 +18,8 @@ export default function RootPathResolver() {
   }
 
   const { hostname } = window.location;
-  const parts = hostname.split('.');
   
-  // If hostname is e.g. "tenant.localhost", parts will be ["tenant", "localhost"]
-  if (parts.length > 1 && parts[0] !== 'www' && parts[0] !== 'localhost') {
+  if (!isCentralDomain(hostname)) {
     // Tenant subdomain detected, redirect to tenant login page
     return <Navigate to="/login" replace />;
   }

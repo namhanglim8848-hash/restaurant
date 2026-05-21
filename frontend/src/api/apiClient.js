@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { isCentralDomain } from '../utils/domain';
 
 // Dynamically compute the API Base URL for local/production subdomain environments
 const getApiBaseUrl = () => {
@@ -8,10 +9,9 @@ const getApiBaseUrl = () => {
 
   const { hostname, protocol } = window.location;
   const backendPort = '8000';
-  const parts = hostname.split('.');
 
   // If a tenant subdomain is present (e.g., "sajilo.localhost")
-  if (parts.length > 1 && parts[0] !== 'www' && parts[0] !== 'localhost') {
+  if (!isCentralDomain(hostname)) {
     return `${protocol}//${hostname}:${backendPort}/api`;
   }
 
@@ -30,8 +30,8 @@ const getTenantSlug = () => {
 
   // 2. Subdomain-based: e.g. sajilo.localhost
   const { hostname } = window.location;
-  const hostParts = hostname.split('.');
-  if (hostParts.length > 1 && hostParts[0] !== 'www' && hostParts[0] !== 'localhost') {
+  if (!isCentralDomain(hostname)) {
+    const hostParts = hostname.split('.');
     return hostParts[0];
   }
   

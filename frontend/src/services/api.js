@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { isCentralDomain } from '../utils/domain';
 
 // Detect host and construct API Base URL dynamically
 const getApiBaseUrl = () => {
@@ -8,11 +9,7 @@ const getApiBaseUrl = () => {
   const backendPort = '8000';
   
   // Check if we are on a tenant subdomain or central localhost
-  const parts = hostname.split('.');
-  
-  // If hostname is e.g. "tenant.localhost", parts will be ["tenant", "localhost"]
-  // If it is just "localhost" or "127.0.0.1", parts will be ["localhost"]
-  if (parts.length > 1 && parts[0] !== 'www') {
+  if (!isCentralDomain(hostname)) {
     // Tenant subdomain detected
     return `${window.location.protocol}//${hostname}:${backendPort}/api`;
   }
