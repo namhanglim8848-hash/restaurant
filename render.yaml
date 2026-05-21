@@ -1,15 +1,9 @@
 services:
   - type: web
     name: growstro-backend
-    env: php
-    buildCommand: |
-      cd backend
-      composer install --no-dev --optimize-autoloader
-    startCommand: |
-      cd backend
-      php artisan migrate --force
-      php artisan db:seed --force
-      php -S 0.0.0.0:$PORT public/index.php
+    runtime: docker
+    dockerContext: backend
+    dockerfilePath: Dockerfile
     envVars:
       - key: APP_ENV
         value: production
