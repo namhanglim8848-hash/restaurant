@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: growstro-backend
+    env: php
+    buildCommand: |
+      cd backend
+      composer install --no-dev --optimize-autoloader
+    startCommand: |
+      cd backend
+      php artisan migrate --force
+      php artisan db:seed --force
+      php -S 0.0.0.0:$PORT public/index.php
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        value: base64:1KLXrP8swE8s330S2U0YJLsdP0AMaELoSSzUeizj3Js=
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: growstro-db
+          property: host
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_DATABASE
+        fromDatabase:
+          name: growstro-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: growstro-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: growstro-db
+          property: password
+
+databases:
+  - name: growstro-db
+    plan: free
