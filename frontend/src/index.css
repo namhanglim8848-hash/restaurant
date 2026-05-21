@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-dark-950 text-dark-100 font-sans antialiased min-h-screen;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(20, 184, 166, 0.08) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.05) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+  
+  ::selection {
+    @apply bg-brand-500 text-white;
+  }
+}
+
+/* Premium glassmorphism panels */
+.glass-panel {
+  @apply bg-dark-900/60 backdrop-blur-xl border border-dark-800/80 shadow-2xl;
+}
+
+/* Premium glass cards and hover borders */
+.glass-card {
+  @apply bg-dark-900/40 backdrop-blur-md border border-dark-800/50 transition-all duration-300 shadow-xl rounded-2xl;
+}
+.glass-card:hover {
+  @apply border-brand-500/30;
+}
+
+/* Neon buttons with gradient states */
+.neon-btn {
+  @apply bg-gradient-to-r from-brand-600 to-brand-500 text-white font-semibold px-6 py-2.5 rounded-xl shadow-lg transition-all duration-200;
+}
+.neon-btn:hover {
+  @apply from-brand-500 to-brand-400 shadow-brand-500/20;
+}
+.neon-btn:active {
+  @apply scale-95;
+}
+
+/* Premium glowing typography */
+.glow-text {
+  @apply text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-teal-200;
+  filter: drop-shadow(0 2px 10px rgba(20,184,166,0.15));
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-dark-950;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-dark-800 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-brand-600;
+}

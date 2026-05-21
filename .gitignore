@@ -1,0 +1,27 @@
+# Dependency directories
+/backend/vendor/
+/backend/node_modules/
+/frontend/node_modules/
+/frontend/dist/
+/frontend/dist-ssr/
+
+# Environment files
+/backend/.env
+/backend/.env.*
+/frontend/.env
+/frontend/.env.*
+.env
+
+# Temporary and local logs
+*.log
+/temp/
+
+# IDEs/Editors
+.idea/
+.vscode/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
