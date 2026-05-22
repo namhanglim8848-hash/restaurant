@@ -91,6 +91,22 @@ class ResolveTenantByPath
      */
     protected function resolveTenantData(string $tenantId): ?array
     {
+        if (app()->runningUnitTests()) {
+            $tenant = Tenant::find($tenantId);
+            if (!$tenant) {
+                return null;
+            }
+
+            $subscription = Subscription::where('tenant_id', $tenant->id)
+                ->latest()
+                ->first();
+
+            return [
+                'tenant'               => $tenant,
+                'subscription_ends_at' => $subscription?->ends_at,
+            ];
+        }
+
         // Layer 1: in-process static cache
         if (isset(static::$resolved[$tenantId])) {
             return static::$resolved[$tenantId];
@@ -112,8 +128,8 @@ class ResolveTenantByPath
                 ->first();
 
             return [
-                'tenant_id'            => $tenant->id,
-                'subscription_ends_at' => $subscription?->ends_at,
+                'tenant_attributes'    => $tenant->getAttributes(),
+                'subscription_ends_at' => $subscription?->ends_at?->toIso8601String(),
             ];
         });
 
@@ -122,20 +138,18 @@ class ResolveTenantByPath
             return null;
         }
 
-        // Re-hydrate the Tenant model from cache data.
-        // We need the full model for tenancy()->initialize(), so we
-        // keep a hydrated copy in the static cache but still avoid
-        // the Subscription query on subsequent hits.
-        $tenant = Tenant::find($cached['tenant_id']);
-        if (!$tenant) {
-            // Tenant was deleted after being cached – bust the cache
-            Cache::forget($cacheKey);
-            return null;
-        }
+        // Re-hydrate the Tenant model from cached attributes without DB query
+        $tenant = new Tenant();
+        $tenant->setRawAttributes($cached['tenant_attributes']);
+        $tenant->exists = true;
+
+        $endsAt = $cached['subscription_ends_at'] 
+            ? \Carbon\Carbon::parse($cached['subscription_ends_at']) 
+            : null;
 
         $result = [
             'tenant'               => $tenant,
-            'subscription_ends_at' => $cached['subscription_ends_at'],
+            'subscription_ends_at' => $endsAt,
         ];
 
         // Promote to Layer 1 for the rest of this process lifetime

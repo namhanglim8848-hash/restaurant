@@ -85,59 +85,64 @@ class AnalyticsService
         $monthStart = (clone $now)->modify('first day of this month')->setTime(0, 0, 0)->format('Y-m-d H:i:s');
         $monthEnd = (clone $now)->modify('last day of this month')->setTime(23, 59, 59)->format('Y-m-d H:i:s');
 
-        // Sales Aggregations
-        $todaySales = (float) Order::where('status', 'completed')
-            ->whereBetween('created_at', [$todayStart, $todayEnd])
-            ->sum('total');
+        $weekStartString = $weekStart->format('Y-m-d H:i:s');
+        $weekEndString = $weekEnd->format('Y-m-d H:i:s');
+        $monthStartDate = Carbon::parse($monthStart)->toDateString();
+        $monthEndDate = Carbon::parse($monthEnd)->toDateString();
 
-        $weekSales = (float) Order::where('status', 'completed')
-            ->whereBetween('created_at', [$weekStart, $weekEnd])
-            ->sum('total');
+        $orderStats = Order::query()
+            ->selectRaw('COUNT(*) as total_orders')
+            ->selectRaw("COUNT(*) FILTER (WHERE status = 'completed') as completed_orders")
+            ->selectRaw("COUNT(*) FILTER (WHERE status = 'cancelled') as cancelled_orders")
+            ->selectRaw("COALESCE(SUM(total) FILTER (WHERE status = 'completed' AND created_at BETWEEN ? AND ?), 0) as today_sales", [$todayStart, $todayEnd])
+            ->selectRaw("COALESCE(SUM(total) FILTER (WHERE status = 'completed' AND created_at BETWEEN ? AND ?), 0) as week_sales", [$weekStartString, $weekEndString])
+            ->selectRaw("COALESCE(SUM(total) FILTER (WHERE status = 'completed' AND created_at BETWEEN ? AND ?), 0) as month_sales", [$monthStart, $monthEnd])
+            ->first();
 
-        $monthSales = (float) Order::where('status', 'completed')
-            ->whereBetween('created_at', [$monthStart, $monthEnd])
-            ->sum('total');
+        $todaySales = (float) $orderStats->today_sales;
+        $weekSales = (float) $orderStats->week_sales;
+        $monthSales = (float) $orderStats->month_sales;
+        $totalOrders = (int) $orderStats->total_orders;
+        $completedOrders = (int) $orderStats->completed_orders;
+        $cancelledOrders = (int) $orderStats->cancelled_orders;
 
-        // Orders Counter
-        $totalOrders = Order::count();
-        $completedOrders = Order::where('status', 'completed')->count();
-        $cancelledOrders = Order::where('status', 'cancelled')->count();
+        $invoiceStats = Invoice::query()
+            ->selectRaw('COUNT(*) as total_invoices')
+            ->selectRaw("COUNT(*) FILTER (WHERE status = 'paid') as paid_invoices")
+            ->selectRaw("COUNT(*) FILTER (WHERE status = 'partially_paid') as partially_paid_invoices")
+            ->selectRaw('COUNT(*) FILTER (WHERE due_amount > 0) as due_invoices')
+            ->selectRaw("COALESCE(SUM(due_amount) FILTER (WHERE status IN ('draft', 'issued', 'partially_paid', 'unpaid')), 0) as total_due_amount")
+            ->first();
 
-        // Invoices Counter
-        $totalInvoices = Invoice::count();
-        $paidInvoices = Invoice::where('status', 'paid')->count();
-        $partiallyPaidInvoices = Invoice::where('status', 'partially_paid')->count();
-        $dueInvoices = Invoice::where('due_amount', '>', 0.00)->count();
+        $totalInvoices = (int) $invoiceStats->total_invoices;
+        $paidInvoices = (int) $invoiceStats->paid_invoices;
+        $partiallyPaidInvoices = (int) $invoiceStats->partially_paid_invoices;
+        $dueInvoices = (int) $invoiceStats->due_invoices;
+        $totalDueAmount = (float) $invoiceStats->total_due_amount;
 
-        // Customer Metrics
-        $totalCustomers = Customer::count();
-        $newCustomersThisMonth = Customer::whereBetween('created_at', [$monthStart, $monthEnd])->count();
+        $customerStats = Customer::query()
+            ->selectRaw('COUNT(*) as total_customers')
+            ->selectRaw('COUNT(*) FILTER (WHERE created_at BETWEEN ? AND ?) as new_customers_this_month', [$monthStart, $monthEnd])
+            ->first();
 
-        // Payments and Dues
+        $totalCustomers = (int) $customerStats->total_customers;
+        $newCustomersThisMonth = (int) $customerStats->new_customers_this_month;
+
         $totalPaymentsReceived = (float) Payment::where('status', 'successful')
             ->whereBetween('payment_date', [$monthStart, $monthEnd])
             ->sum('amount');
 
-        $totalDueAmount = (float) Invoice::whereIn('status', ['draft', 'issued', 'partially_paid', 'unpaid'])->sum('due_amount');
+        $totalExpenses = (float) Expense::whereBetween('expense_date', [$monthStartDate, $monthEndDate])
+            ->sum('amount');
 
-        // Expenses
-        $totalExpenses = (float) Expense::whereBetween('expense_date', [
-            Carbon::parse($monthStart)->toDateString(),
-            Carbon::parse($monthEnd)->toDateString()
-        ])->sum('amount');
-
-        // Net Revenue
         $netRevenue = round($monthSales - $totalExpenses, 2);
 
-        // Low stock items count (low threshold default 5.00)
         $lowStockItemsCount = Product::where('track_stock', true)
             ->where('stock_quantity', '<=', 5.00)
             ->count();
 
-        // Pending Kitchen tickets
         $pendingKitchenTickets = KitchenTicket::whereIn('status', ['pending', 'preparing'])->count();
 
-        // Top selling products (from order items snapshot name)
         $topSellingProducts = OrderItem::select('name')
             ->selectRaw('SUM(quantity) as total_quantity')
             ->selectRaw('SUM(total_amount) as total_revenue')
@@ -148,15 +153,19 @@ class AnalyticsService
             ->get()
             ->toArray();
 
-        // Recent Orders
-        $recentOrders = Order::with('customer')
+        $recentOrders = Order::with('customer:id,name,phone')
+            ->select(['id', 'customer_id', 'restaurant_table_id', 'order_number', 'type', 'status', 'payment_status', 'kitchen_status', 'total', 'created_at'])
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get()
             ->toArray();
 
-        // Recent Payments
-        $recentPayments = Payment::with(['invoice', 'order', 'customer'])
+        $recentPayments = Payment::with([
+                'invoice:id,invoice_number,status,total,due_amount',
+                'order:id,order_number,status,total,due_amount',
+                'customer:id,name,phone',
+            ])
+            ->select(['id', 'invoice_id', 'order_id', 'customer_id', 'amount', 'gateway', 'transaction_id', 'status', 'payment_date', 'created_at'])
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get()

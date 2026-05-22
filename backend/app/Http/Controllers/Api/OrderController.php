@@ -87,7 +87,14 @@ class OrderController extends Controller
     {
         $this->authorizePermission('view_orders');
 
-        $query = Order::with(['customer', 'table', 'items']);
+        $query = Order::with([
+            'customer:id,name,phone',
+            'table:id,table_number,capacity,status',
+        ]);
+
+        if ($request->boolean('include_items')) {
+            $query->with('items:id,order_id,menu_item_id,product_id,service_id,name,quantity,unit_price,discount_amount,vat_amount,total_amount,kitchen_status,notes,created_at,updated_at');
+        }
 
         // Filter by type
         if ($request->has('type')) {
@@ -104,7 +111,7 @@ class OrderController extends Controller
             $query->where('restaurant_table_id', $request->input('restaurant_table_id'));
         }
 
-        $orders = $query->paginate(15);
+        $orders = $query->orderBy('created_at', 'desc')->paginate(15);
 
         return $this->success(
             OrderResource::collection($orders)->response()->getData(true),
@@ -186,7 +193,7 @@ class OrderController extends Controller
         $completedOrder = $this->orderService->completeOrder($order);
 
         return $this->success(
-            new OrderResource($completedOrder),
+            new OrderResource($completedOrder->load(['customer', 'table', 'items'])),
             'Order completed successfully'
         );
     }
@@ -202,7 +209,7 @@ class OrderController extends Controller
         $cancelledOrder = $this->orderService->cancelOrder($order);
 
         return $this->success(
-            new OrderResource($cancelledOrder),
+            new OrderResource($cancelledOrder->load(['customer', 'table', 'items'])),
             'Order cancelled successfully'
         );
     }

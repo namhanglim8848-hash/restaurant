@@ -16,8 +16,8 @@ class CustomerResource extends JsonResource
             'email' => $this->email,
             'address' => $this->address,
             'points' => $this->points ?? 0,
-            'total_spent' => $this->orders()->where('status', 'completed')->sum('total') ?? 0.00,
-            'due_amount' => $this->orders()->where('status', '!=', 'completed')->sum('total') ?? 0.00,
+            'total_spent' => (float) ($this->total_spent ?? 0.00),
+            'due_amount' => (float) ($this->due_amount ?? 0.00),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

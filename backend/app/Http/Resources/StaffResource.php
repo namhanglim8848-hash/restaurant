@@ -10,7 +10,8 @@ class StaffResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $permissionService = app(PermissionService::class);
+        static $permissionService = null;
+        $permissionService ??= app(PermissionService::class);
 
         return [
             'id'                    => $this->id,

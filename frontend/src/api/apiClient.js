@@ -3,20 +3,24 @@ import { isCentralDomain } from '../utils/domain';
 
 // Dynamically compute the API Base URL for local/production subdomain environments
 const getApiBaseUrl = () => {
+  let baseUrl = '';
   if (import.meta.env.VITE_API_BASE_URL) {
-    return import.meta.env.VITE_API_BASE_URL;
+    baseUrl = import.meta.env.VITE_API_BASE_URL;
+  } else {
+    const { hostname, protocol } = window.location;
+    const backendPort = '8000';
+
+    // If a tenant subdomain is present (e.g., "sajilo.localhost")
+    if (!isCentralDomain(hostname)) {
+      baseUrl = `${protocol}//${hostname}:${backendPort}/api`;
+    } else {
+      // Otherwise, default to the central base URL
+      baseUrl = `${protocol}//127.0.0.1:${backendPort}/api`;
+    }
   }
 
-  const { hostname, protocol } = window.location;
-  const backendPort = '8000';
-
-  // If a tenant subdomain is present (e.g., "sajilo.localhost")
-  if (!isCentralDomain(hostname)) {
-    return `${protocol}//${hostname}:${backendPort}/api`;
-  }
-
-  // Otherwise, default to the central base URL
-  return `${protocol}//localhost:${backendPort}/api`;
+  // Always replace localhost with 127.0.0.1 to bypass Windows IPv6 DNS resolution delays
+  return baseUrl.replace('://localhost:', '://127.0.0.1:').replace('://localhost/api', '://127.0.0.1/api');
 };
 
 // Helper to get active tenant slug dynamically from subdomain or URL path

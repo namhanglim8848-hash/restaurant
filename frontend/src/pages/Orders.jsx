@@ -8,6 +8,7 @@ import Input from '../components/Input';
 import Select from '../components/Select';
 import Badge from '../components/Badge';
 import { useToast } from '../context/ToastContext';
+import { getCategoryLabel } from '../utils/formatters';
 
 export default function Orders() {
   const [tables, setTables] = useState([]);
@@ -197,7 +198,7 @@ export default function Orders() {
                   className="glass-card p-4 flex flex-col justify-between cursor-pointer active:scale-95 transition-all min-h-[120px]"
                 >
                   <div>
-                    <span className="text-[10px] text-brand-400 font-bold uppercase tracking-wider">{item.category}</span>
+                    <span className="text-[10px] text-brand-400 font-bold uppercase tracking-wider">{getCategoryLabel(item.category)}</span>
                     <p className="text-sm font-bold text-white mt-1 line-clamp-1">{item.name}</p>
                     <p className="text-xs text-dark-400 mt-1 line-clamp-2">{item.description}</p>
                   </div>

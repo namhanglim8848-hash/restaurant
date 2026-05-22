@@ -103,13 +103,14 @@ class InvoiceController extends Controller
     {
         $this->authorizePermission('manage_invoices', true);
 
-        $query = Invoice::with(['customer', 'order']);
+        $query = Invoice::with(['customer:id,name,phone', 'order:id,order_number,status']);
 
         if ($request->has('status')) {
             $query->where('status', $request->input('status'));
         }
 
-        $invoices = $query->orderBy('created_at', 'desc')->get();
+        $perPage = min((int) $request->input('per_page', 25), 100);
+        $invoices = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
         return $this->success(
             InvoiceResource::collection($invoices),
@@ -127,7 +128,7 @@ class InvoiceController extends Controller
         $invoice = $this->invoiceService->createManualInvoice($request->validated());
 
         return $this->success(
-            new InvoiceResource($invoice->load('items')),
+            new InvoiceResource($invoice->load(['items', 'customer', 'order'])),
             'Invoice created successfully',
             201
         );
@@ -159,7 +160,7 @@ class InvoiceController extends Controller
         $updated = $this->invoiceService->updateInvoice($invoice, $request->validated());
 
         return $this->success(
-            new InvoiceResource($updated->load('items')),
+            new InvoiceResource($updated->load(['items', 'customer', 'order'])),
             'Invoice updated successfully'
         );
     }
@@ -203,7 +204,7 @@ class InvoiceController extends Controller
         ]);
 
         return $this->success(
-            new InvoiceResource($invoice->load('items')),
+            new InvoiceResource($invoice->load(['items', 'customer', 'order'])),
             'Invoice generated from order successfully',
             201
         );
@@ -220,7 +221,7 @@ class InvoiceController extends Controller
         $issued = $this->invoiceService->issueInvoice($invoice);
 
         return $this->success(
-            new InvoiceResource($issued->load('items')),
+            new InvoiceResource($issued->load(['items', 'customer', 'order'])),
             'Invoice issued successfully'
         );
     }
@@ -236,7 +237,7 @@ class InvoiceController extends Controller
         $cancelled = $this->invoiceService->cancelInvoice($invoice);
 
         return $this->success(
-            new InvoiceResource($cancelled->load('items')),
+            new InvoiceResource($cancelled->load(['items', 'customer', 'order'])),
             'Invoice cancelled successfully'
         );
     }
@@ -264,7 +265,7 @@ class InvoiceController extends Controller
         $this->pdfService->generateInvoicePdf($invoice);
 
         return $this->success(
-            new InvoiceResource($invoice->load('items')),
+            new InvoiceResource($invoice->load(['items', 'customer', 'order'])),
             'Invoice PDF regenerated successfully'
         );
     }

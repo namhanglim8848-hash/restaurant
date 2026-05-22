@@ -7,6 +7,7 @@ import Input from '../components/Input';
 import Select from '../components/Select';
 import Badge from '../components/Badge';
 import { useToast } from '../context/ToastContext';
+import { getCategoryLabel } from '../utils/formatters';
 
 export default function MenuItems() {
   const [menuItems, setMenuItems] = useState([]);
@@ -66,7 +67,7 @@ export default function MenuItems() {
   const handleOpenEdit = (item) => {
     setFormData({
       name: item.name,
-      category: item.category || '',
+      category: getCategoryLabel(item.category, ''),
       price: item.price,
       description: item.description || '',
       is_available: item.is_available ?? true,
@@ -118,7 +119,7 @@ export default function MenuItems() {
   const mappedItems = safeMenuItems.map((item) => ({
     id: item.id,
     name: item.name,
-    category: item.category || '-',
+    category: getCategoryLabel(item.category),
     price: `Rs. ${Number(item.price).toFixed(2)}`,
     description: item.description || '-',
     availability: (

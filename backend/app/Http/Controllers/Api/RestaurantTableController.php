@@ -66,7 +66,9 @@ class RestaurantTableController extends Controller
     {
         $this->authorizePermission('view_tables');
 
-        $query = RestaurantTable::with('space');
+        $query = RestaurantTable::with(['space' => function ($q) {
+            $q->withCount('tables');
+        }]);
 
         // Search by table number
         if ($request->has('search')) {
@@ -102,7 +104,9 @@ class RestaurantTableController extends Controller
         $table = RestaurantTable::create($request->validated());
 
         return $this->success(
-            new RestaurantTableResource($table->load('space')),
+            new RestaurantTableResource($table->load(['space' => function ($q) {
+                $q->withCount('tables');
+            }])),
             'Restaurant table created successfully',
             201
         );
@@ -115,7 +119,9 @@ class RestaurantTableController extends Controller
     {
         $this->authorizePermission('view_tables');
 
-        $table = RestaurantTable::with('space')->findOrFail($id);
+        $table = RestaurantTable::with(['space' => function ($q) {
+            $q->withCount('tables');
+        }])->findOrFail($id);
 
         return $this->success(
             new RestaurantTableResource($table),
@@ -134,7 +140,9 @@ class RestaurantTableController extends Controller
         $table->update($request->validated());
 
         return $this->success(
-            new RestaurantTableResource($table->load('space')),
+            new RestaurantTableResource($table->load(['space' => function ($q) {
+                $q->withCount('tables');
+            }])),
             'Restaurant table updated successfully'
         );
     }

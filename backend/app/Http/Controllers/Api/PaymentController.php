@@ -102,7 +102,21 @@ class PaymentController extends Controller
     {
         $this->authorizePermission('manage_payments', true);
 
-        $query = Payment::with(['invoice', 'order', 'customer']);
+        $query = Payment::query()
+            ->select([
+                'id',
+                'invoice_id',
+                'order_id',
+                'customer_id',
+                'amount',
+                'gateway',
+                'transaction_id',
+                'status',
+                'payment_date',
+                'notes',
+                'created_at',
+                'updated_at',
+            ]);
 
         if ($request->has('gateway')) {
             $query->where('gateway', $request->input('gateway'));
@@ -112,7 +126,8 @@ class PaymentController extends Controller
             $query->where('status', $request->input('status'));
         }
 
-        $payments = $query->orderBy('created_at', 'desc')->get();
+        $perPage = min((int) $request->input('per_page', 25), 100);
+        $payments = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
         return $this->success(
             PaymentResource::collection($payments),

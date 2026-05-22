@@ -7,6 +7,7 @@ import Input from '../components/Input';
 import Select from '../components/Select';
 import Badge from '../components/Badge';
 import { useToast } from '../context/ToastContext';
+import { getCategoryLabel } from '../utils/formatters';
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -71,7 +72,7 @@ export default function Products() {
     setFormData({
       name: prod.name,
       sku: prod.sku || '',
-      category: prod.category || '',
+      category: getCategoryLabel(prod.category, ''),
       price: prod.price,
       cost: prod.cost || '',
       stock_quantity: prod.stock_quantity ?? 0,
@@ -125,7 +126,7 @@ export default function Products() {
     id: p.id,
     name: p.name,
     sku: p.sku || '-',
-    category: p.category || '-',
+    category: getCategoryLabel(p.category),
     price: `Rs. ${Number(p.price).toFixed(2)}`,
     stock: String(p.stock_quantity ?? 0),
     status: (

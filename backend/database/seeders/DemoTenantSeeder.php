@@ -52,6 +52,7 @@ class DemoTenantSeeder extends Seeder
                 DemoCustomerSeeder::class,
                 DemoProductSeeder::class,
                 DemoOrderSeeder::class,
+                RichDemoDataSeeder::class,
             ]);
         });
     }

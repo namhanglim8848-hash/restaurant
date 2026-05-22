@@ -66,7 +66,7 @@ class RestaurantSpaceController extends Controller
     {
         $this->authorizePermission('view_tables');
 
-        $query = RestaurantSpace::query();
+        $query = RestaurantSpace::query()->withCount('tables');
 
         if ($request->has('search')) {
             $search = $request->input('search');
@@ -93,6 +93,7 @@ class RestaurantSpaceController extends Controller
         $this->authorizePermission('manage_tables');
 
         $space = RestaurantSpace::create($request->validated());
+        $space->loadCount('tables');
 
         return $this->success(
             new RestaurantSpaceResource($space),
@@ -108,7 +109,7 @@ class RestaurantSpaceController extends Controller
     {
         $this->authorizePermission('view_tables');
 
-        $space = RestaurantSpace::findOrFail($id);
+        $space = RestaurantSpace::withCount('tables')->findOrFail($id);
 
         return $this->success(
             new RestaurantSpaceResource($space),
@@ -125,6 +126,7 @@ class RestaurantSpaceController extends Controller
 
         $space = RestaurantSpace::findOrFail($id);
         $space->update($request->validated());
+        $space->loadCount('tables');
 
         return $this->success(
             new RestaurantSpaceResource($space),

@@ -66,7 +66,14 @@ class CustomerController extends Controller
     {
         $this->authorizePermission('view_customers');
 
-        $query = Customer::query();
+        $query = Customer::query()
+            ->select(['id', 'name', 'phone', 'email', 'address', 'points', 'created_at', 'updated_at'])
+            ->withSum([
+                'orders as total_spent' => fn ($query) => $query->where('status', 'completed'),
+            ], 'total')
+            ->withSum([
+                'orders as due_amount' => fn ($query) => $query->where('status', '!=', 'completed'),
+            ], 'total');
 
         // Search by name, phone, email
         if ($request->has('search')) {

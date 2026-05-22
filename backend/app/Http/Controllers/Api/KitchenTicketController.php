@@ -145,7 +145,7 @@ class KitchenTicketController extends Controller
             $this->syncOrderKitchenStatus($ticket->order_id);
 
             return $this->success(
-                new KitchenTicketResource($ticket->load('items.orderItem')),
+                new KitchenTicketResource($ticket->load(['order.table', 'items.orderItem'])),
                 'Kitchen ticket status updated successfully'
             );
         });
@@ -196,7 +196,7 @@ class KitchenTicketController extends Controller
             $this->syncOrderKitchenStatus($ticket->order_id);
 
             return $this->success(
-                new KitchenTicketResource($ticket->load('items.orderItem')),
+                new KitchenTicketResource($ticket->load(['order.table', 'items.orderItem'])),
                 'Kitchen ticket item status updated successfully'
             );
         });
@@ -214,7 +214,7 @@ class KitchenTicketController extends Controller
         $ticket->save();
 
         return $this->success(
-            new KitchenTicketResource($ticket->load('items.orderItem')),
+            new KitchenTicketResource($ticket->load(['order.table', 'items.orderItem'])),
             'Kitchen ticket printed successfully'
         );
     }

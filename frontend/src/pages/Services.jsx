@@ -6,6 +6,7 @@ import Modal from '../components/Modal';
 import Input from '../components/Input';
 import Badge from '../components/Badge';
 import { useToast } from '../context/ToastContext';
+import { getCategoryLabel } from '../utils/formatters';
 
 export default function Services() {
   const [services, setServices] = useState([]);
@@ -65,7 +66,7 @@ export default function Services() {
   const handleOpenEdit = (serv) => {
     setFormData({
       name: serv.name,
-      category: serv.category || '',
+      category: getCategoryLabel(serv.category, ''),
       price: serv.price,
       duration_minutes: serv.duration_minutes || '',
       is_active: serv.is_active ?? true,
@@ -117,7 +118,7 @@ export default function Services() {
   const mappedItems = safeServices.map((s) => ({
     id: s.id,
     name: s.name,
-    category: s.category || '-',
+    category: getCategoryLabel(s.category),
     price: `Rs. ${Number(s.price).toFixed(2)}`,
     duration: s.duration_minutes ? `${s.duration_minutes} mins` : '-',
     status: (

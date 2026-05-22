@@ -158,14 +158,14 @@ class RichDemoDataSeeder extends Seeder
         $privateRoom = RestaurantSpace::updateOrCreate(['name' => 'Private Room A'],   ['is_active' => true]);
 
         $tableSetup = [
-            ['number' => 'T-01', 'space' => $mainHall,    'seats' => 4, 'status' => 'available'],
-            ['number' => 'T-02', 'space' => $mainHall,    'seats' => 4, 'status' => 'available'],
-            ['number' => 'T-03', 'space' => $mainHall,    'seats' => 6, 'status' => 'available'],
+            ['number' => 'T-01', 'space' => $mainHall,    'seats' => 4, 'status' => 'vacant'],
+            ['number' => 'T-02', 'space' => $mainHall,    'seats' => 4, 'status' => 'vacant'],
+            ['number' => 'T-03', 'space' => $mainHall,    'seats' => 6, 'status' => 'vacant'],
             ['number' => 'T-04', 'space' => $mainHall,    'seats' => 4, 'status' => 'occupied'],
-            ['number' => 'T-05', 'space' => $mainHall,    'seats' => 2, 'status' => 'available'],
-            ['number' => 'R-01', 'space' => $rooftop,     'seats' => 4, 'status' => 'available'],
+            ['number' => 'T-05', 'space' => $mainHall,    'seats' => 2, 'status' => 'vacant'],
+            ['number' => 'R-01', 'space' => $rooftop,     'seats' => 4, 'status' => 'vacant'],
             ['number' => 'R-02', 'space' => $rooftop,     'seats' => 6, 'status' => 'reserved'],
-            ['number' => 'P-01', 'space' => $privateRoom, 'seats' => 12, 'status' => 'available'],
+            ['number' => 'P-01', 'space' => $privateRoom, 'seats' => 12, 'status' => 'vacant'],
         ];
 
         foreach ($tableSetup as $ts) {

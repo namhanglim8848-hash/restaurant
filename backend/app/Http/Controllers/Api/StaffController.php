@@ -55,7 +55,10 @@ class StaffController extends Controller
     {
         $this->authorizePermission('manage_staff');
 
-        $staff = User::orderBy('name', 'asc')->paginate($request->get('per_page', 30));
+        $staff = User::query()
+            ->select(['id', 'name', 'email', 'phone', 'role', 'permissions', 'is_active', 'created_at', 'updated_at'])
+            ->orderBy('name', 'asc')
+            ->paginate($request->get('per_page', 30));
 
         return $this->success(
             StaffResource::collection($staff)->response()->getData(true),

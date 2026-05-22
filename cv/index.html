@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="midnight">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rohan Shrestha - Resume</title>
+    <meta name="description" content="Resume of Rohan Shrestha, Full-Stack Software Engineer, Product Builder & DevOps Practitioner.">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Decorative background blobs (hidden on print) -->
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+
+    <!-- Floating Action Bar -->
+    <div class="controls-bar">
+        <div class="theme-selector" title="Choose Sidebar Theme">
+            <button class="theme-btn theme-btn-midnight active" data-theme-val="midnight" onclick="selectTheme('midnight')"></button>
+            <button class="theme-btn theme-btn-emerald" data-theme-val="emerald" onclick="selectTheme('emerald')"></button>
+            <button class="theme-btn theme-btn-amethyst" data-theme-val="amethyst" onclick="selectTheme('amethyst')"></button>
+            <button class="theme-btn theme-btn-light" data-theme-val="light" onclick="selectTheme('light')"></button>
+        </div>
+        <div class="divider"></div>
+        <button id="editBtn" class="control-btn" onclick="toggleEditMode()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 0.9rem; height: 0.9rem;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+            </svg>
+            Edit CV
+        </button>
+        <button class="control-btn btn-action" onclick="printCV()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 0.9rem; height: 0.9rem;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 1.258a1.791 1.791 0 0 1-1.753 2.112H7.862a1.791 1.791 0 0 1-1.753-2.112L6.34 18M9 9V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V9m-6 0h6m-6 2.25h6m-6 2.25h6" />
+            </svg>
+            Print / PDF
+        </button>
+        <button id="resetBtn" class="control-btn" style="color: #ef4444;" onclick="resetCV()" title="Reset to default template">
+            Reset
+        </button>
+        <span id="editIndicator" class="edit-indicator">EDIT MODE ACTIVE</span>
+    </div>
+
+    <!-- CV Container -->
+    <main class="cv-container" id="cvContainer">
+        
+        <!-- Full Width Header -->
+        <header class="cv-header">
+            <h1 id="cv-name" class="editable-field">Rohan Shrestha</h1>
+            <div id="cv-title" class="subtitle editable-field">Full-Stack Software Engineer | Product Builder | DevOps Practitioner</div>
+            
+            <!-- Horizontal Contact Details Row -->
+            <div class="contact-row">
+                <div class="contact-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 013.5 2h1.148a1.5 1.5 0 011.465 1.175l.716 3.223a1.5 1.5 0 01-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 006.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 011.767-1.052l3.223.716A1.5 1.5 0 0118 15.352V16.5a1.5 1.5 0 01-1.5 1.5h-1.15a13.5 13.5 0 01-13.07-13.07V3.5z" clip-rule="evenodd" />
+                    </svg>
+                    <a href="tel:+9779707736587" id="cv-phone-link" style="color: inherit; text-decoration: none;">
+                        <span id="cv-phone" class="editable-field">+977 9707736587</span>
+                    </a>
+                </div>
+                <div class="contact-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
+                        <path d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z" />
+                    </svg>
+                    <a href="mailto:rohanxhrestha1234@gmail.com" id="cv-email-link" style="color: inherit; text-decoration: none;">
+                        <span id="cv-email" class="editable-field">rohanxhrestha1234@gmail.com</span>
+                    </a>
+                </div>
+                <div class="contact-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.308-.066l.002-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.096.446-.24.757-.433.62-.384 1.445-.966 2.274-1.765C15.302 14.988 17 12.493 17 9A7 7 0 103 9c0 3.492 1.698 5.988 3.371 7.592.83.799 1.653 1.38 2.273 1.765.312.193.572.337.758.433a5.736 5.736 0 00.281.14l.018.008.006.003zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                    </svg>
+                    <span id="cv-location" class="editable-field">Baluwatar-4, Kathmandu</span>
+                </div>
+                <div class="contact-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M12.31 3.03a.75.75 0 011.08 0l3.99 4a.75.75 0 010 1.08l-3.99 4a.75.75 0 11-1.08-1.08l2.7-2.7H9a5.25 5.25 0 00-5.25 5.25v.75a.75.75 0 01-1.5 0v-.75A6.75 6.75 0 019 6.75h5.02l-2.7-2.7a.75.75 0 010-1.08z" clip-rule="evenodd" />
+                    </svg>
+                    <a href="https://github.com/rohanshrestha1234" id="cv-github-link" target="_blank" style="color: inherit; text-decoration: none;">
+                        <span id="cv-github" class="editable-field">github.com/rohanshrestha1234</span>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Grid Layout Body -->
+        <div class="cv-grid-body">
+            
+            <!-- LEFT SIDEBAR -->
+            <aside class="sidebar">
+                
+                <!-- Education -->
+                <section class="sidebar-section">
+                    <h2 class="sidebar-title">Education</h2>
+                    <div class="sidebar-list" id="cv-education-list">
+                        <div class="sidebar-list-item">
+                            <div class="item-header-text editable-field">BSC. CSIT</div>
+                            <div class="item-sub-text editable-field">Texas International College, Chabahil</div>
+                        </div>
+                        <div class="sidebar-list-item">
+                            <div class="item-header-text editable-field">High School (+2)</div>
+                            <div class="item-sub-text editable-field">Trinity International College, Dillibazar (2021)</div>
+                        </div>
+                        <div class="sidebar-list-item">
+                            <div class="item-header-text editable-field">SEE</div>
+                            <div class="item-sub-text editable-field">Ashirvad Boarding School, Baluwatar (2019)</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Technical Skills -->
+                <section class="sidebar-section">
+                    <h2 class="sidebar-title">Technical Skills</h2>
+                    <div class="skills-cloud" id="cv-skills-tech">
+                        <div class="skill-bullet editable-field">Laravel & PHP</div>
+                        <div class="skill-bullet editable-field">Next.js, React.js & TypeScript</div>
+                        <div class="skill-bullet editable-field">REST APIs & JWT Auth</div>
+                        <div class="skill-bullet editable-field">Docker, CI/CD & Git</div>
+                        <div class="skill-bullet editable-field">Redis & WebSockets</div>
+                        <div class="skill-bullet editable-field">AI Integration (OpenAI API)</div>
+                        <div class="skill-bullet editable-field">Stripe & Unit Testing</div>
+                        <div class="skill-bullet editable-field">Agile/Scrum Methodologies</div>
+                        <div class="skill-bullet editable-field">PostgreSQL & MySQL</div>
+                        <div class="skill-bullet editable-field">Adobe Creative Suite</div>
+                        <div class="skill-bullet editable-field">WordPress & SEO</div>
+                    </div>
+                </section>
+
+                <!-- Languages -->
+                <section class="sidebar-section">
+                    <h2 class="sidebar-title">Languages</h2>
+                    <div class="languages-cloud" id="cv-languages-list">
+                        <div class="skill-bullet editable-field">English</div>
+                        <div class="skill-bullet editable-field">Nepali</div>
+                        <div class="skill-bullet editable-field">Hindi</div>
+                    </div>
+                </section>
+
+            </aside>
+
+            <!-- MAIN CONTENT AREA (RIGHT) -->
+            <div class="main-content">
+                
+                <!-- Profile -->
+                <section class="cv-section">
+                    <h2 class="section-title">Profile</h2>
+                    <p id="cv-summary" class="summary-text editable-field">
+                        Result-driven Full-Stack Software Engineer and Product Builder with a strong foundation in UI/UX design, graphic design, and brand identity. Experienced in building and scaling 20+ production web applications and multi-tenant SaaS platforms using Laravel, React.js, and PostgreSQL. Highly skilled in managing Linux VPS droplets, containerizing stacks using Docker, and optimizing database schemas. Proven track record of independently delivering end-to-end digital systems and engaging multimedia content.
+                    </p>
+                </section>
+
+                <!-- Experience -->
+                <section class="cv-section">
+                    <h2 class="section-title">Experience</h2>
+                    <div class="timeline" id="cv-experience-timeline">
+                        
+                        <!-- Sajilo -->
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-header">
+                                <div class="item-title-wrapper">
+                                    <span class="item-role editable-field">Full Stack Software Engineer</span> — 
+                                    <span class="item-company editable-field">Sajilo Website</span>
+                                </div>
+                                <span class="item-date editable-field">2023 – Present</span>
+                            </div>
+                            <div class="item-desc editable-field">High-performance full-stack web solutions and DevOps administration for startups and businesses.</div>
+                            <ul class="bullets-list">
+                                <li class="editable-field">Engineered and launched 15+ production-grade web applications utilizing Laravel, Next.js, React.js, and TypeScript in Agile/Scrum environments.</li>
+                                <li class="editable-field">Integrated secure REST APIs, JWT Authentication, and automated Stripe payments, delivering seamless transactions and robust user security.</li>
+                                <li class="editable-field">Optimized system responsiveness and real-time operations using Redis caching and WebSockets, reducing application latency by 40%.</li>
+                                <li class="editable-field">Spearheaded containerization (Docker) and CI/CD pipelines (Git/GitHub Actions), accelerating developer setup and code release stability.</li>
+                                <li class="editable-field">Deployed machine learning capabilities via AI Integration (OpenAI API) and verified codebase reliability using comprehensive Unit Testing.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Drishti / Mero Eye -->
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-header">
+                                <div class="item-title-wrapper">
+                                    <span class="item-role editable-field">E-Commerce Developer, Graphic Designer & Video Editor</span> — 
+                                    <span class="item-company editable-field">Drishti Ventures & Mero Eye Foundation</span>
+                                </div>
+                                <span class="item-date editable-field">2021 – 2023</span>
+                            </div>
+                            <div class="item-desc editable-field">Multimedia design, e-commerce development, and coordination of digital operations.</div>
+                            <ul class="bullets-list">
+                                <li class="editable-field">Designed and produced 100+ high-engagement social media graphics and marketing videos using Adobe Creative Suite (Photoshop, Illustrator, Premiere Pro, After Effects).</li>
+                                <li class="editable-field">Developed, launched, and maintained a WordPress-based e-commerce platform (`drishtiventure.com`), expanding customer reach and boosting sales.</li>
+                                <li class="editable-field">Managed online learning operations, Google Meet schedules, portal structures, and provided technical support for class sessions.</li>
+                                <li class="editable-field">Recorded, edited, and optimized educational training content for YouTube, increasing student engagement.</li>
+                                <li class="editable-field">Implemented SEO optimizations and performance tweaks, accelerating page load speeds by 30%.</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- Featured Client Deployments -->
+                <section class="cv-section">
+                    <h2 class="section-title">Featured Client Deployments</h2>
+                    <div class="projects-block" id="cv-showcase-links">
+                        <div class="project-item">
+                            <div class="project-title-row">
+                                <span class="project-title editable-field">E-Commerce Web Storefront</span>
+                                <span class="project-tech editable-field">WordPress Website</span>
+                            </div>
+                            <p class="project-desc editable-field"><a href="http://drishtiventure.com" target="_blank" style="color: var(--text-muted); font-weight: 500;">drishtiventure.com</a> (Designed, developed, and deployed custom brand storefront)</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Key Skills -->
+                <section class="cv-section">
+                    <h2 class="section-title">Key Skills</h2>
+                    <div class="skills-tags" id="cv-key-skills-tags">
+                        <span class="skill-tag editable-field">Graphic Design & Video Editing</span>
+                        <span class="skill-tag editable-field">Content Creation & Scheduling</span>
+                        <span class="skill-tag editable-field">Social Media Strategy</span>
+                        <span class="skill-tag editable-field">Branding Consistency</span>
+                        <span class="skill-tag editable-field">E-commerce Website Design</span>
+                        <span class="skill-tag editable-field">Facebook Advertising</span>
+                        <span class="skill-tag editable-field">System Debugging & IT Works</span>
+                    </div>
+                </section>
+
+            </div>
+            
+        </div>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="saveToast" class="toast">Changes saved successfully!</div>
+
+    <script src="app.js"></script>
+</body>
+</html>
