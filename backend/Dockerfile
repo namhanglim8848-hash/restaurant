@@ -1,3 +1,10 @@
+FROM composer:2 AS vendor
+WORKDIR /app
+
+# Copy composer files and install dependencies into a vendor layer
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+
 FROM php:8.3-fpm-alpine
 
 # Install system dependencies and PHP extensions
@@ -21,17 +28,14 @@ COPY docker-php.ini /usr/local/etc/php/conf.d/app.ini
 # Increase PHP-FPM performance settings
 RUN echo "[www]\npm = dynamic\npm.max_children = 20\npm.start_servers = 5\npm.min_spare_servers = 2\npm.max_spare_servers = 10" >> /usr/local/etc/php-fpm.d/www.conf
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
 # Set working directory
 WORKDIR /var/www
 
 # Copy project files
 COPY . /var/www
 
-# Install Composer packages with optimization
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Copy vendor from the builder stage
+COPY --from=vendor /app/vendor /var/www/vendor
 
 # Set proper permissions
 RUN mkdir -p storage/framework/cache storage/framework/views storage/logs && \
