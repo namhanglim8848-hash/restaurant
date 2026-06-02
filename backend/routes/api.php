@@ -63,7 +63,7 @@ Route::prefix('auth')->group(function () {
     Route::post('/register-business', [BusinessRegistrationController::class, 'register']);
     
     // Unified Authentication (Authenticates central admins OR tenant workers based on payload)
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->name('login');
     
     // Mock Recovery Endpoint
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
