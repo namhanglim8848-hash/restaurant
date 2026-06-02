@@ -30,6 +30,7 @@ class ResolveTenantByPath
      */
     public function handle(Request $request, Closure $next): Response
     {
+       $requestStart = microtime(true);
         $tenantId = $request->route('tenant');
         if (!$tenantId) {
             return response()->json([
@@ -75,8 +76,19 @@ class ResolveTenantByPath
 
         // Bind the tenant instance to the request context for downstream use
         $request->attributes->set('tenant', $tenant);
+       \Log::info('BEFORE NEXT');
 
-        return $next($request);
+$start = microtime(true);
+
+$response = $next($request);
+
+\Log::info(
+    'AFTER NEXT - TOTAL PIPELINE: ' .
+    round((microtime(true) - $start) * 1000, 2) .
+    ' ms'
+);
+
+return $response;
     }
 
     /**

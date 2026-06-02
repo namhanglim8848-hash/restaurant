@@ -64,9 +64,25 @@ class MenuItemController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $start = microtime(true);
+        \Log::info('Before authorize');
         $this->authorizePermission('view_menu');
+        \Log::info(
+    'Authorize Time: ' .
+    round((microtime(true) - $start) * 1000, 2) .
+    ' ms'
+);
 
-        $query = MenuItem::with('category');
+        $query = MenuItem::query()
+        ->with('category:id,name')
+        ->select(
+            'id',
+            'category_id',
+            'name',
+            'description',
+            'price',
+            'is_available'
+        );
 
         // Search by name
         if ($request->has('search')) {
@@ -89,7 +105,21 @@ class MenuItemController extends Controller
         }
 
         $menuItems = $query->paginate(15);
+        $time = round((microtime(true) - $start) * 1000, 2);
+         \Log::info(
+        'MenuItem Controller: ' .
+        round((microtime(true) - $start) * 1000, 2) .
+        ' ms'
+    );
 
+        return response()->json([
+            'execution_time_ms' => $time,
+            'success' => true,
+            'message' => 'Menu items retrieved successfully',
+            'data' => MenuItemResource::collection($menuItems)->response()->getData(true),
+        ]);
+
+        
         return $this->success(
             MenuItemResource::collection($menuItems)->response()->getData(true),
             'Menu items retrieved successfully'

@@ -26,6 +26,21 @@ use App\Http\Controllers\Api\AdminSubscriptionPlanController;
 use App\Http\Controllers\Api\AdminSubscriptionController;
 use App\Http\Controllers\Api\AdminPlatformAnalyticsController;
 use App\Http\Controllers\Api\AdminAuditLogController;
+Route::get('/db-test', function () {
+    $start = microtime(true);
+
+    DB::select('SELECT 1');
+
+    return [
+        'time_ms' => round((microtime(true) - $start) * 1000, 2)
+    ];
+});
+Route::get('/test-speed', function () {
+    return response()->json([
+        'message' => 'ok',
+        'time' => microtime(true)
+    ]);
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -215,7 +230,14 @@ Route::middleware([ResolveTenantByPath::class])->prefix('{tenant}')->group(funct
         });
     });
 });
-
+Route::get('/test-speed', function () {
+    return response()->json([
+        'success' => true
+    ]);
+});
+Route::get('/php-test', function () {
+    return 'ok';
+});
 Route::get('/health', function () {
     return response()->json([
         'success' => true,

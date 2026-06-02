@@ -12,13 +12,11 @@ class MenuItemResource extends JsonResource
         return [
             'id' => $this->id,
             'category_id' => $this->category_id,
-            'category' => new CategoryResource($this->whenLoaded('category')),
+            'category' => $this->category?->name,
             'name' => $this->name,
             'description' => $this->description,
             'price' => $this->price,
             'is_available' => $this->is_available,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
         ];
     }
 }

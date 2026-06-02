@@ -17,4 +17,12 @@ require __DIR__.'/../vendor/autoload.php';
 /** @var Application $app */
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
+$requestStart = microtime(true);
+
 $app->handleRequest(Request::capture());
+
+\Illuminate\Support\Facades\Log::info(
+    'FULL APP TIME: ' .
+    round((microtime(true) - $requestStart) * 1000, 2) .
+    ' ms'
+);

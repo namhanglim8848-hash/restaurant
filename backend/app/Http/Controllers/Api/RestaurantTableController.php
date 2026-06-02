@@ -64,11 +64,13 @@ class RestaurantTableController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $start = microtime(true);
+
         $this->authorizePermission('view_tables');
 
-        $query = RestaurantTable::with(['space' => function ($q) {
-            $q->withCount('tables');
-        }]);
+        $query = RestaurantTable::query()
+    ->with('space:id,name')
+    ->select('id','restaurant_space_id','table_number','capacity','status');
 
         // Search by table number
         if ($request->has('search')) {
@@ -87,6 +89,11 @@ class RestaurantTableController extends Controller
         }
 
         $tables = $query->paginate(15);
+        \Log::info(
+    'RestaurantTable Controller: ' .
+    round((microtime(true) - $start) * 1000, 2) .
+    ' ms'
+);
 
         return $this->success(
             RestaurantTableResource::collection($tables)->response()->getData(true),
@@ -105,7 +112,7 @@ class RestaurantTableController extends Controller
 
         return $this->success(
             new RestaurantTableResource($table->load(['space' => function ($q) {
-                $q->withCount('tables');
+                // $q->withCount('tables');
             }])),
             'Restaurant table created successfully',
             201
@@ -120,7 +127,7 @@ class RestaurantTableController extends Controller
         $this->authorizePermission('view_tables');
 
         $table = RestaurantTable::with(['space' => function ($q) {
-            $q->withCount('tables');
+            // $q->withCount('tables');
         }])->findOrFail($id);
 
         return $this->success(
@@ -141,7 +148,7 @@ class RestaurantTableController extends Controller
 
         return $this->success(
             new RestaurantTableResource($table->load(['space' => function ($q) {
-                $q->withCount('tables');
+                // $q->withCount('tables');
             }])),
             'Restaurant table updated successfully'
         );
