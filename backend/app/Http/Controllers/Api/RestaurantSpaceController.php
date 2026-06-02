@@ -64,11 +64,10 @@ class RestaurantSpaceController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        
         $start = microtime(true);
         $this->authorizePermission('view_tables');
 
-        $query = RestaurantSpace::query()->withCount('tables');
+        $query = RestaurantSpace::query()->withCount('tables')->select('id', 'name', 'is_active');
 
         if ($request->has('search')) {
             $search = $request->input('search');
@@ -80,16 +79,15 @@ class RestaurantSpaceController extends Controller
         }
 
         $spaces = $query->paginate(15);
-        
-        \Log::info(
-    'RestaurantSpace Controller: ' .
-    round((microtime(true) - $start) * 1000, 2) .
-    ' ms'
-);
-        return $this->success(
-            RestaurantSpaceResource::collection($spaces)->response()->getData(true),
-            'Restaurant spaces retrieved successfully'
-        );
+
+        $time = round((microtime(true) - $start) * 1000, 2);
+
+        return response()->json([
+            'execution_time_ms' => $time,
+            'success' => true,
+            'message' => 'Restaurant spaces retrieved successfully',
+            'data' => RestaurantSpaceResource::collection($spaces),
+        ]);
     }
 
     /**

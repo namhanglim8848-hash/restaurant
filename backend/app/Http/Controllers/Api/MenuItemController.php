@@ -65,37 +65,28 @@ class MenuItemController extends Controller
     public function index(Request $request): JsonResponse
     {
         $start = microtime(true);
-        \Log::info('Before authorize');
         $this->authorizePermission('view_menu');
-        \Log::info(
-    'Authorize Time: ' .
-    round((microtime(true) - $start) * 1000, 2) .
-    ' ms'
-);
 
         $query = MenuItem::query()
-        ->with('category:id,name')
-        ->select(
-            'id',
-            'category_id',
-            'name',
-            'description',
-            'price',
-            'is_available'
-        );
+            ->with('category:id,name')
+            ->select(
+                'id',
+                'category_id',
+                'name',
+                'description',
+                'price',
+                'is_available'
+            );
 
-        // Search by name
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where('name', 'like', "%{$search}%");
         }
 
-        // Filter by category
         if ($request->has('category_id')) {
             $query->where('category_id', $request->input('category_id'));
         }
 
-        // Filter by availability
         if ($request->has('is_available')) {
             $query->where('is_available', $request->boolean('is_available'));
         }
@@ -105,25 +96,15 @@ class MenuItemController extends Controller
         }
 
         $menuItems = $query->paginate(15);
+
         $time = round((microtime(true) - $start) * 1000, 2);
-         \Log::info(
-        'MenuItem Controller: ' .
-        round((microtime(true) - $start) * 1000, 2) .
-        ' ms'
-    );
 
         return response()->json([
             'execution_time_ms' => $time,
             'success' => true,
             'message' => 'Menu items retrieved successfully',
-            'data' => MenuItemResource::collection($menuItems)->response()->getData(true),
+            'data' => MenuItemResource::collection($menuItems),
         ]);
-
-        
-        return $this->success(
-            MenuItemResource::collection($menuItems)->response()->getData(true),
-            'Menu items retrieved successfully'
-        );
     }
 
     /**
