@@ -32,6 +32,8 @@ services:
         fromDatabase:
           name: growstro-db
           property: password
+      - key: RUN_MIGRATIONS
+        value: "true"
 
 databases:
   - name: growstro-db
