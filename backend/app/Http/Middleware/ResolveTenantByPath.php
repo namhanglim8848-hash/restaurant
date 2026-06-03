@@ -30,8 +30,8 @@ class ResolveTenantByPath
      */
     public function handle(Request $request, Closure $next): Response
     {
-       $requestStart = microtime(true);
         $tenantId = $request->route('tenant');
+
         if (!$tenantId) {
             return response()->json([
                 'success' => false,
@@ -76,19 +76,8 @@ class ResolveTenantByPath
 
         // Bind the tenant instance to the request context for downstream use
         $request->attributes->set('tenant', $tenant);
-       \Log::info('BEFORE NEXT');
 
-$start = microtime(true);
-
-$response = $next($request);
-
-\Log::info(
-    'AFTER NEXT - TOTAL PIPELINE: ' .
-    round((microtime(true) - $start) * 1000, 2) .
-    ' ms'
-);
-
-return $response;
+        return $next($request);
     }
 
     /**
@@ -155,8 +144,8 @@ return $response;
         $tenant->setRawAttributes($cached['tenant_attributes']);
         $tenant->exists = true;
 
-        $endsAt = $cached['subscription_ends_at'] 
-            ? \Carbon\Carbon::parse($cached['subscription_ends_at']) 
+        $endsAt = $cached['subscription_ends_at']
+            ? \Carbon\Carbon::parse($cached['subscription_ends_at'])
             : null;
 
         $result = [

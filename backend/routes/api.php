@@ -26,21 +26,6 @@ use App\Http\Controllers\Api\AdminSubscriptionPlanController;
 use App\Http\Controllers\Api\AdminSubscriptionController;
 use App\Http\Controllers\Api\AdminPlatformAnalyticsController;
 use App\Http\Controllers\Api\AdminAuditLogController;
-Route::get('/db-test', function () {
-    $start = microtime(true);
-
-    DB::select('SELECT 1');
-
-    return [
-        'time_ms' => round((microtime(true) - $start) * 1000, 2)
-    ];
-});
-Route::get('/test-speed', function () {
-    return response()->json([
-        'message' => 'ok',
-        'time' => microtime(true)
-    ]);
-});
 
 /*
 |--------------------------------------------------------------------------
@@ -51,7 +36,6 @@ Route::get('/test-speed', function () {
 | Central routes are globally available. Tenant-scoped routes are bound to
 | dynamic path-resolved tenant databases.
 |
-|
 */
 
 // ==========================================
@@ -61,13 +45,13 @@ Route::get('/test-speed', function () {
 Route::prefix('auth')->group(function () {
     // Business Owner Self-Registration (Creates new Tenant & Database)
     Route::post('/register-business', [BusinessRegistrationController::class, 'register']);
-    
+
     // Unified Authentication (Authenticates central admins OR tenant workers based on payload)
     Route::post('/login', [AuthController::class, 'login'])->name('login');
-    
+
     // Mock Recovery Endpoint
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-    
+
     // Accept Staff Invitation (Phase 10)
     Route::post('/accept-staff-invitation', [\App\Http\Controllers\Api\StaffInvitationController::class, 'accept']);
 });
@@ -81,7 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
 // Central Admin Dashboard & Control Panel Endpoints (Phase 11)
 Route::middleware(['auth:sanctum', 'role:super_admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index']);
-    
+
     // Tenant management
     Route::get('/tenants', [AdminTenantController::class, 'index']);
     Route::post('/tenants', [AdminTenantController::class, 'store']);
@@ -126,14 +110,14 @@ Route::middleware(['auth:sanctum', 'role:super_admin'])->prefix('admin')->group(
 // ==========================================
 
 Route::middleware([ResolveTenantByPath::class])->prefix('{tenant}')->group(function () {
-    
+
     // Public eSewa Callback Endpoints (No Sanctum Required)
     Route::get('/payments/esewa/success', [EsewaPaymentController::class, 'esewaSuccess']);
     Route::get('/payments/esewa/failure', [EsewaPaymentController::class, 'esewaFailure']);
 
     // Isolated tenant user authentications
     Route::middleware('auth:sanctum')->group(function () {
-        
+
         // Tenant profile querying
         Route::get('/me', [AuthController::class, 'me']);
         Route::post('/auth/logout', [AuthController::class, 'logout']);
@@ -143,10 +127,28 @@ Route::middleware([ResolveTenantByPath::class])->prefix('{tenant}')->group(funct
         Route::apiResource('categories', CategoryController::class);
         Route::apiResource('products', ProductController::class);
         Route::apiResource('services', ServiceController::class);
-        Route::apiResource('menu-items', MenuItemController::class);
-        Route::apiResource('spaces', RestaurantSpaceController::class);
-        Route::apiResource('tables', RestaurantTableController::class);
-        
+
+        // Menu Items — explicit routes with permission middleware
+        Route::get('/menu-items',         [MenuItemController::class, 'index'])->middleware('permission:view_menu');
+        Route::post('/menu-items',        [MenuItemController::class, 'store'])->middleware('permission:manage_menu');
+        Route::get('/menu-items/{id}',    [MenuItemController::class, 'show'])->middleware('permission:view_menu');
+        Route::put('/menu-items/{id}',    [MenuItemController::class, 'update'])->middleware('permission:manage_menu');
+        Route::delete('/menu-items/{id}',[MenuItemController::class, 'destroy'])->middleware('permission:manage_menu');
+
+        // Restaurant Spaces — explicit routes with permission middleware
+        Route::get('/spaces',         [RestaurantSpaceController::class, 'index'])->middleware('permission:view_tables');
+        Route::post('/spaces',        [RestaurantSpaceController::class, 'store'])->middleware('permission:manage_tables');
+        Route::get('/spaces/{id}',    [RestaurantSpaceController::class, 'show'])->middleware('permission:view_tables');
+        Route::put('/spaces/{id}',    [RestaurantSpaceController::class, 'update'])->middleware('permission:manage_tables');
+        Route::delete('/spaces/{id}',[RestaurantSpaceController::class, 'destroy'])->middleware('permission:manage_tables');
+
+        // Restaurant Tables — explicit routes with permission middleware
+        Route::get('/tables',         [RestaurantTableController::class, 'index'])->middleware('permission:view_tables');
+        Route::post('/tables',        [RestaurantTableController::class, 'store'])->middleware('permission:manage_tables');
+        Route::get('/tables/{id}',    [RestaurantTableController::class, 'show'])->middleware('permission:view_tables');
+        Route::put('/tables/{id}',    [RestaurantTableController::class, 'update'])->middleware('permission:manage_tables');
+        Route::delete('/tables/{id}',[RestaurantTableController::class, 'destroy'])->middleware('permission:manage_tables');
+
         // Orders API
         Route::get('/orders', [OrderController::class, 'index']);
         Route::post('/orders', [OrderController::class, 'store']);
@@ -184,7 +186,6 @@ Route::middleware([ResolveTenantByPath::class])->prefix('{tenant}')->group(funct
 
         // Analytics API
         Route::get('/analytics/overview', [AnalyticsController::class, 'overview']);
-        // Separate routes for filters and breakdowns
         Route::get('/analytics/sales', [AnalyticsController::class, 'sales']);
         Route::get('/analytics/payments', [AnalyticsController::class, 'payments']);
         Route::get('/analytics/customers', [AnalyticsController::class, 'customers']);
@@ -230,14 +231,7 @@ Route::middleware([ResolveTenantByPath::class])->prefix('{tenant}')->group(funct
         });
     });
 });
-Route::get('/test-speed', function () {
-    return response()->json([
-        'success' => true
-    ]);
-});
-Route::get('/php-test', function () {
-    return 'ok';
-});
+
 Route::get('/health', function () {
     return response()->json([
         'success' => true,

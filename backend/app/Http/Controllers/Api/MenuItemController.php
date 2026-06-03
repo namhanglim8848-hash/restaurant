@@ -16,78 +16,23 @@ class MenuItemController extends Controller
     use ApiResponse;
 
     /**
-     * Helper to enforce permission checks inline.
-     */
-    protected function authorizePermission(string $permission): void
-    {
-        $user = auth()->user();
-        if (!$user) {
-            abort(response()->json([
-                'success' => false,
-                'message' => 'Unauthenticated'
-            ], 401));
-        }
-
-        $permissionsMap = [
-            'super_admin' => ['*'],
-            'owner' => ['*'],
-            'manager' => [
-                'view_pos', 'manage_pos',
-                'view_inventory', 'manage_inventory',
-                'view_customers', 'manage_customers',
-                'view_products', 'manage_products',
-                'view_menu', 'manage_menu',
-                'view_tables', 'manage_tables'
-            ],
-            'staff' => [
-                'view_pos', 'manage_pos',
-                'view_customers',
-                'view_products',
-                'view_menu',
-                'view_tables'
-            ],
-        ];
-
-        $userRole = $user->role ?? 'staff';
-        $userPerms = $permissionsMap[$userRole] ?? [];
-
-        if (!in_array('*', $userPerms) && !in_array($permission, $userPerms)) {
-            abort(response()->json([
-                'success' => false,
-                'message' => 'Forbidden: You do not have permission to execute this operation'
-            ], 403));
-        }
-    }
-
-    /**
      * Display a listing of menu items.
      */
     public function index(Request $request): JsonResponse
     {
-        $start = microtime(true);
-        $this->authorizePermission('view_menu');
-
         $query = MenuItem::query()
             ->with('category:id,name')
-            ->select(
-                'id',
-                'category_id',
-                'name',
-                'description',
-                'price',
-                'is_available'
-            );
+            ->select('id', 'category_id', 'name', 'description', 'price', 'is_available');
 
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where('name', 'like', "%{$search}%");
+        if ($request->filled('search')) {
+            $query->where('name', 'like', "%{$request->input('search')}%");
         }
 
-        if ($request->has('category_id')) {
+        if ($request->filled('category_id')) {
             $query->where('category_id', $request->input('category_id'));
         }
 
-        if ($request->has('is_available')) {
+        if ($request->filled('is_available')) {
             $query->where('is_available', $request->boolean('is_available'));
         }
 
@@ -95,16 +40,10 @@ class MenuItemController extends Controller
             $query->withTrashed();
         }
 
-        $menuItems = $query->paginate(15);
-
-        $time = round((microtime(true) - $start) * 1000, 2);
-
-        return response()->json([
-            'execution_time_ms' => $time,
-            'success' => true,
-            'message' => 'Menu items retrieved successfully',
-            'data' => MenuItemResource::collection($menuItems),
-        ]);
+        return $this->success(
+            MenuItemResource::collection($query->paginate(15)),
+            'Menu items retrieved successfully'
+        );
     }
 
     /**
@@ -112,8 +51,6 @@ class MenuItemController extends Controller
      */
     public function store(StoreMenuItemRequest $request): JsonResponse
     {
-        $this->authorizePermission('manage_menu');
-
         $menuItem = MenuItem::create($request->validated());
 
         return $this->success(
@@ -128,8 +65,6 @@ class MenuItemController extends Controller
      */
     public function show($tenant, $id): JsonResponse
     {
-        $this->authorizePermission('view_menu');
-
         $menuItem = MenuItem::with('category')->findOrFail($id);
 
         return $this->success(
@@ -143,8 +78,6 @@ class MenuItemController extends Controller
      */
     public function update(UpdateMenuItemRequest $request, $tenant, $id): JsonResponse
     {
-        $this->authorizePermission('manage_menu');
-
         $menuItem = MenuItem::findOrFail($id);
         $menuItem->update($request->validated());
 
@@ -159,8 +92,6 @@ class MenuItemController extends Controller
      */
     public function destroy($tenant, $id): JsonResponse
     {
-        $this->authorizePermission('manage_menu');
-
         $menuItem = MenuItem::findOrFail($id);
         $menuItem->delete();
 

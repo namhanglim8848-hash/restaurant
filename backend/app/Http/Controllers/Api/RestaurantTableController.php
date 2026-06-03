@@ -16,84 +16,30 @@ class RestaurantTableController extends Controller
     use ApiResponse;
 
     /**
-     * Helper to enforce permission checks inline.
-     */
-    protected function authorizePermission(string $permission): void
-    {
-        $user = auth()->user();
-        if (!$user) {
-            abort(response()->json([
-                'success' => false,
-                'message' => 'Unauthenticated'
-            ], 401));
-        }
-
-        $permissionsMap = [
-            'super_admin' => ['*'],
-            'owner' => ['*'],
-            'manager' => [
-                'view_pos', 'manage_pos',
-                'view_inventory', 'manage_inventory',
-                'view_customers', 'manage_customers',
-                'view_products', 'manage_products',
-                'view_menu', 'manage_menu',
-                'view_tables', 'manage_tables'
-            ],
-            'staff' => [
-                'view_pos', 'manage_pos',
-                'view_customers',
-                'view_products',
-                'view_menu',
-                'view_tables'
-            ],
-        ];
-
-        $userRole = $user->role ?? 'staff';
-        $userPerms = $permissionsMap[$userRole] ?? [];
-
-        if (!in_array('*', $userPerms) && !in_array($permission, $userPerms)) {
-            abort(response()->json([
-                'success' => false,
-                'message' => 'Forbidden: You do not have permission to execute this operation'
-            ], 403));
-        }
-    }
-
-    /**
      * Display a listing of restaurant tables.
      */
     public function index(Request $request): JsonResponse
     {
-        $start = microtime(true);
-        $this->authorizePermission('view_tables');
-
         $query = RestaurantTable::query()
             ->with('space:id,name')
-            ->select('id','restaurant_space_id','table_number','capacity','status');
+            ->select('id', 'restaurant_space_id', 'table_number', 'capacity', 'status');
 
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where('table_number', 'like', "%{$search}%");
+        if ($request->filled('search')) {
+            $query->where('table_number', 'like', "%{$request->input('search')}%");
         }
 
-        if ($request->has('restaurant_space_id')) {
+        if ($request->filled('restaurant_space_id')) {
             $query->where('restaurant_space_id', $request->input('restaurant_space_id'));
         }
 
-        if ($request->has('status')) {
+        if ($request->filled('status')) {
             $query->where('status', $request->input('status'));
         }
 
-        $tables = $query->paginate(15);
-
-        $time = round((microtime(true) - $start) * 1000, 2);
-
-        return response()->json([
-            'execution_time_ms' => $time,
-            'success' => true,
-            'message' => 'Restaurant tables retrieved successfully',
-            'data' => RestaurantTableResource::collection($tables),
-        ]);
+        return $this->success(
+            RestaurantTableResource::collection($query->paginate(15)),
+            'Restaurant tables retrieved successfully'
+        );
     }
 
     /**
@@ -101,8 +47,6 @@ class RestaurantTableController extends Controller
      */
     public function store(StoreRestaurantTableRequest $request): JsonResponse
     {
-        $this->authorizePermission('manage_tables');
-
         $table = RestaurantTable::create($request->validated());
 
         return $this->success(
@@ -117,8 +61,6 @@ class RestaurantTableController extends Controller
      */
     public function show($tenant, $id): JsonResponse
     {
-        $this->authorizePermission('view_tables');
-
         $table = RestaurantTable::with('space')->findOrFail($id);
 
         return $this->success(
@@ -132,8 +74,6 @@ class RestaurantTableController extends Controller
      */
     public function update(UpdateRestaurantTableRequest $request, $tenant, $id): JsonResponse
     {
-        $this->authorizePermission('manage_tables');
-
         $table = RestaurantTable::findOrFail($id);
         $table->update($request->validated());
 
@@ -148,8 +88,6 @@ class RestaurantTableController extends Controller
      */
     public function destroy($tenant, $id): JsonResponse
     {
-        $this->authorizePermission('manage_tables');
-
         $table = RestaurantTable::findOrFail($id);
         $table->delete();
 
